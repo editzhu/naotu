@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="css/index.css">
+<title>Insert title here</title>
+</head>
+<body>
+	<div class="container">
+		<div class="left" id="left">
+			<canvas id="myCanvas" width='800' height='500'>Canvas画线技巧</canvas>
+			<div class="L1" id="i1">原木</div>
+			<div class="L1" id="i2">脑图</div>
+			<div class="L1" id="i3">致命</div>
+			<div class="L1" id="i4">shier</div>
+			<div class="L1" id="i5">城堡</div>
+			<div class="L1" id="i6">神偷</div>
+		</div>
+		<div class="right" id="demo"></div>
+	</div>
+	<script>
+		//window.onload = reDraw();
+		addLoadEvent(reDraw);
+		document.onkeyup = keyUp;
+
+		function go(v1, v2) {
+			var myCanvas = document.getElementById("myCanvas");
+			var context = myCanvas.getContext("2d");
+			// context.clearRect(0, 0, 2200, 2200);
+			// context.fillStyle = 'rgba(255,0,0,.3)';//填充颜色：红色，半透明
+			context.strokeStyle = 'hsl(120,50%,50%)';// 线条颜色：绿色
+			context.lineWidth = 1;// 设置线宽
+			context.beginPath();
+			// var v1 = document.getElementById("i1");
+			// var v2 = document.getElementById("i2");
+			var x1 = parseInt(window.getComputedStyle(v1, null).left) + 54 - 30;
+			var y1 = parseInt(window.getComputedStyle(v1, null).top) + 1;
+			var x2 = parseInt(window.getComputedStyle(v2, null).left) - 10;
+			var y2 = parseInt(window.getComputedStyle(v2, null).top) + 1;
+			var zx = (x2 + x1) / 2;
+			var zy = (y2 + y1) / 2;
+			context.moveTo(x1, y1);
+			// context.lineTo(parseInt(v2.style.left), parseInt(v2.style.top));//直线连接
+
+			//context.quadraticCurveTo(x1, zy, zx, zy);//曲线连接
+			//context.quadraticCurveTo(x2, zy, x2, y2);//曲线连接,这2行是分段曲线
+
+			context.quadraticCurveTo(x1, y2, x2, y2);// 单段曲线连接
+			context.stroke();// 画线框
+			// context.fill();//填充颜色
+
+		}
+		function keyUp(e) {
+			var currKey = 0, e = e || event;
+			currKey = e.keyCode || e.which || e.charCode;
+			var keyName = String.fromCharCode(currKey);
+			adddemo(currKey + ":" + keyName);
+			switch (currKey) {
+			case 74:
+				addNewChild();
+			}
+
+		}
+
+		function addNewChild() {
+			adddemo("addnewchild");
+			var newDiv = document.createElement("div");
+			newDiv.className = "L1";
+			document.getElementById("left").appendChild(newDiv);
+			reDraw();//增加了节点了,重画
+			// document.getElementsByTagName("body").item(0).appendChild(newDiv);
+		}
+		function adddemo(s) {
+			x = document.getElementById("demo"); // 找到元素
+			if (s) {
+				x.innerHTML = x.innerHTML + s;
+			}// 改变内容
+			else {
+				x.innerHTML = "demo";
+			}
+		}
+
+		function reDraw() {
+			//识别所有id为i1的div的所有className=L1的子元素节点
+			var dians = Array();//所有L1的节点数组
+			var tmp = 0;
+			var nodes = document.getElementById("left").childNodes;
+			for (var i = 0; i < nodes.length; i++) {
+				if (nodes[i].className == "L1") {
+					dians[tmp] = nodes[i];
+					tmp++;
+				}
+			}
+			//计算L1的节点数组的坐标点
+			//var biaozhun = 200 - 5 - (dians.length * 30 - 10) / 2;//计算出第一个div的高度
+			var biaozhun = 50+20 ;//计算出第一个div的高度
+			for (var i = 1; i < dians.length; i++) {
+				dians[i].style.left = 300 + "px";
+				dians[i].style.top = biaozhun + i * 30 + "px";
+				adddemo(dians[i].style.top);
+			}
+			//canvas绘图
+			var myCanvas = document.getElementById("myCanvas");
+			var context = myCanvas.getContext("2d");
+			context.clearRect(0, 0, 2200, 2200);
+			var v1 = document.getElementById("i1");
+			for (var i = 0; i < dians.length; i++) {
+				go(v1, dians[i]);
+			}
+		}
+
+		//为L1增加点击事件
+		document.getElementById("i1").onclick = cc;
+		function cc() {
+			alert("cc");
+			var request = new XMLHttpRequest;
+			if (request) {
+				request.open("GET", "test", true);//true表示异步
+				//以GET方式,异步方式,打开example.txt这个文件
+				request.onreadystatechange = function() {
+					//onreadystatechange是一个事件函数,它会在服务器给XMLHttpRequest对象送回响应的时候触发执行.
+					if (request.readyState == 4) {
+						var txt = request.responseText;
+						alert(txt);
+					}
+				};
+				request.send(null);//指定了请求的目标,明确了如何处理响应,可以发送请求了
+			} else {
+				alert("Sorry");
+			}
+			alert("cccc");
+		}
+		function addLoadEvent(func){ 
+			//将函数作为参数，此函数就是 onload 触发时需要执行的某个函数
+			    var oldonload=window.onload; 
+			    //将原来的 onload 的值赋给临时变量 oldonload。
+			    if(typeof window.onload!="function"){ 
+			    //判断 onload 的类型是否是 function。如果已经执行window.onload=function(){...} 赋值，那么此时 onload 的类型就是 function
+			    //否，则说明 onload 还没有被赋值，当前任务 func 为第一个加入的任务
+			        window.onload=func(); 
+			        //作为第一个任务，给 onload 赋值
+			    }else{ 
+			    //是，则说明 onload 已被赋值，onload 中先前已有任务加入
+			        window.onload=function(){
+			            oldonload();
+			            func(); 
+			            //作为后续任务，追加到先前的任务后面
+			        }
+			    }
+			}
+	</script>
+</body>
+</html>
+
